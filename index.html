@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>鼠标拖拽效果</title>
+</head>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    position: relative;
+  }
+
+  #box {
+    position: absolute;
+    width: 100px;
+    height: 60px;
+    border: 1px solid #222;
+    background-color: yellow;
+  }
+</style>
+<body>
+  <div id="box" ></div>
+
+  <script>
+    var box = document.getElementById("box");
+    var isDragging = false;  // 是否拖动的标志
+    var mouseOffsetX = 0;  // 鼠标相对于元素左边框的距离
+    var mouseOffsetY = 0;
+
+    //鼠标事件1 - 按下（要计算鼠标相对拖拽元素的左上角的坐标，并且标记元素为可拖动）
+    box.onmousedown = function(event){
+      var e = event || window.event();  //IE
+      var mouseCurrentX = e.clientX;  //鼠标当前位置
+      var mouseCurrentY = e.clientY;      
+      mouseOffsetX = mouseCurrentX - box.offsetLeft;  // 鼠标相对于元素左边框的距离
+      mouseOffsetY = mouseCurrentY - box.offsetTop;   // 鼠标相对于元素上边框的距离
+      isDragging = true;
+    };
+
+    //鼠标事件2 - 鼠标移动
+    document.onmousemove = function(event) {
+      var e = event || window.event();  //IE
+
+      var mouseCurrentX = e.clientX;  //鼠标当前位置
+      var mouseCurrentY = e.clientY;
+
+      //拖拽元素的新位置
+      var moveX  = 0;  // 元素左边框相对于可视区（客户区）左边的距离
+      var moveY  = 0;  // 元素上边框相对于可视区（客户区）上边的距离
+
+      if (isDragging === true) {
+        //拖拽元素的新位置 = 鼠标当前坐标 - 鼠标相对于拖拽元素的坐标
+        moveX = mouseCurrentX - mouseOffsetX;  
+        moveY = mouseCurrentY - mouseOffsetY;
+
+        //拖动范围： moveX > 0 并且 moveX < (可视区（客户区）最大宽度 - 拖拽元素的宽度)
+        //           movey > 0 并且 movey < (可视区（客户区）最大高度 - 拖拽元素的高度)
+        var pageWidth = document.documentElement.clientWidth;  //浏览器窗口的大小
+        var pageHeight = document.documentElement.clientHeight;
+
+        var maxX = pageWidth - box.offsetWidth;
+        var maxY = pageHeight - box.offsetHeight;
+
+        moveX = Math.min( maxX, Math.max(0, moveX) );  // 0 < moveX < maxX
+        moveY = Math.min( maxY, Math.max(0, moveY) );  // 0 < moveY < maxY
+
+        box.style.left = moveX + "px";
+        box.style.top = moveY + "px";
+      }
+
+    };
+
+    //鼠标事件3 - 鼠标松开
+    document.onmouseup = function() {
+      isDragging = false;
+    };
+
+    /*
+
+    参考《高程》P320~326、http://www.cnblogs.com/luckk/p/4495243.html
+    offsetLeft：元素左外边框 到 包含元素（body）的左内边框 之间的像素距离
+    offsetWidth：元素的水平宽度（元素的width + padding + border +　垂直滚动条宽度）
+
+    clientWidth：元素的width +　padding（document.documentElement.clientWidth是浏览器窗口的宽度）
+
+    pageX：鼠标在页面上的位置,从整个页面左上角开始,即是以整个页面为参考点,不随滑动条移动而变化
+
+    clientX：鼠标在页面上可视区域(客户区)的位置,从浏览器可视区域左上角开始,即是以浏览器滑动条此刻的滑动到的位置为参考点,随滑动条移动 而变化.
+
+    */
+  </script>
+</body>
+</html>
